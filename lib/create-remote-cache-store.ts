@@ -1,4 +1,4 @@
-import { RemoteCache } from "@nrwl/workspace/src/tasks-runner/default-tasks-runner";
+import { RemoteCache } from "@nx/workspace/src/tasks-runner/default-tasks-runner";
 import AdmZip from "adm-zip";
 import { getCacheEntryPath } from "./get-cache-entry-path";
 import { SafeRemoteCacheImplementation } from "./types/safe-remote-cache-implementation";
@@ -10,20 +10,22 @@ const zipFolder = (path: string): Buffer => {
   return zip.toBuffer();
 };
 
-export const createRemoteCacheStore = (
-  safeImplementation: Promise<SafeRemoteCacheImplementation | null>
-): RemoteCache["store"] => async (hash, cacheDirectory) => {
-  const implementation = await safeImplementation;
+export const createRemoteCacheStore =
+  (
+    safeImplementation: Promise<SafeRemoteCacheImplementation | null>
+  ): RemoteCache["store"] =>
+  async (hash, cacheDirectory) => {
+    const implementation = await safeImplementation;
 
-  if (!implementation) {
-    return false;
-  }
+    if (!implementation) {
+      return false;
+    }
 
-  const { storeFile } = implementation;
-  const source = getCacheEntryPath(hash, cacheDirectory);
-  const buffer = zipFolder(source);
+    const { storeFile } = implementation;
+    const source = getCacheEntryPath(hash, cacheDirectory);
+    const buffer = zipFolder(source);
 
-  await storeFile(hash, buffer);
+    await storeFile(hash, buffer);
 
-  return true;
-};
+    return true;
+  };

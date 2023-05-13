@@ -1,4 +1,4 @@
-import { RemoteCache } from "@nrwl/workspace/src/tasks-runner/default-tasks-runner";
+import { RemoteCache } from "@nx/workspace/src/tasks-runner/default-tasks-runner";
 import AdmZip from "adm-zip";
 import { writeFileSync } from "fs";
 import { join } from "path";
@@ -17,31 +17,33 @@ const writeCommitFile = (destination: string) => {
   writeFileSync(commitFilePath, COMMIT_FILE_CONTENT);
 };
 
-export const createRemoteCacheRetrieve = (
-  safeImplementation: Promise<SafeRemoteCacheImplementation | null>
-): RemoteCache["retrieve"] => async (hash, cacheDirectory) => {
-  const implementation = await safeImplementation;
+export const createRemoteCacheRetrieve =
+  (
+    safeImplementation: Promise<SafeRemoteCacheImplementation | null>
+  ): RemoteCache["retrieve"] =>
+  async (hash, cacheDirectory) => {
+    const implementation = await safeImplementation;
 
-  if (!implementation) {
-    return false;
-  }
+    if (!implementation) {
+      return false;
+    }
 
-  const { fileExists, retrieveFile } = implementation;
-  const isFileCached = await fileExists(hash);
+    const { fileExists, retrieveFile } = implementation;
+    const isFileCached = await fileExists(hash);
 
-  if (!isFileCached) {
-    return false;
-  }
+    if (!isFileCached) {
+      return false;
+    }
 
-  const buffer = await retrieveFile(hash);
-  const destination = join(cacheDirectory, hash);
+    const buffer = await retrieveFile(hash);
+    const destination = join(cacheDirectory, hash);
 
-  if (!buffer) {
-    return false;
-  }
+    if (!buffer) {
+      return false;
+    }
 
-  extractZipBuffer(buffer, destination);
-  writeCommitFile(destination);
+    extractZipBuffer(buffer, destination);
+    writeCommitFile(destination);
 
-  return true;
-};
+    return true;
+  };
